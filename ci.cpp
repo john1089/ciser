@@ -5,9 +5,14 @@
 using namespace std;
 int main()
 {
+	system("./cis &");
     system("./cim");
-    ifstream f1("ci.log");
-    int sock_cli;f1>>sock_cli;
-    close(sock_cli);
+	ofstream f1("c1.exit");
+	f1<<"exit!"<<endl;
+	f1.close();
+	system("rm -rf txt");
+	system("rm -rf recv.log");
+	system("rm -rf txt.log");
+	system("rm -rf connect.log");
     return 0;
 }

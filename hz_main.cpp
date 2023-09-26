@@ -142,7 +142,7 @@ int main()
 		retval = select(maxfd + 1, &rfds, NULL, NULL, &tv);
 				string sendbuf="```cpp";
 					for(int i=0;i<8192;++i){
-						for(int j=1;j<=8192;++j)
+						for(int j=1;j<=12000;++j)
 							file[i]+="fuck";
 					}
 					int sz;

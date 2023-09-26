@@ -4,6 +4,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 #define BUFFER_SIZE 4096
+string name;
 #define ll long long
 string to_str(int x){
 	stack<char>st;string ans;
@@ -92,20 +93,54 @@ void appi(string x){
 }
 using namespace std;
 string file[4096];
+bool ex(string name){
+	ifstream fin(name.c_str());
+	return fin.good()&&(!fin.eof());;
+}
+inline void ou(){
+	while(1){
+		if(ex("recv.log")){
+			string str;
+			ifstream f1("recv.log");
+			while(!f1.eof()){
+				string str1;
+				getline(f1,str1);
+				ofstream bsout("base.in");
+				bsout<<str1<<'\n';
+				system("./base64 --decode");
+				ifstream bsin("base.out");
+				bsin>>str1;
+				bsin.close();bsout.close();
+				str+=str1;
+				if(!f1.eof())str+='\n';
+			}
+
+			if(isapi(str))appi(str);
+			else cout<<str;
+			system("rm -rf recv.log");
+		}
+		sleep(0.01);
+	}
+}
+inline void in(){
+	while(1){
+		string sendbuf;
+		cin>>sendbuf;
+		if(sendbuf=="```cpp"){
+			cout<<"请输入文件内容（按ctrl+shift+v粘贴，ctrl+c停止输入）："<<endl;
+			system("cat > txt");
+		}
+		else{
+			string sed="#\b"+name+"#\b : "+sendbuf+"\n";
+			ofstream fout("txt.log");
+			fout<<sed<<endl;
+			fout.close();
+		}
+		sleep(0.01);
+	}
+}
 int main()
 {
-	ofstream f11("ci.log");
-	int sock_cli;
-	fd_set rfds;
-	struct timeval tv;
-	int retval, maxfd;
-
-	sock_cli = socket(AF_INET, SOCK_STREAM, 0);
-	f11<<sock_cli<<endl;
-	f11.close();
-	struct sockaddr_in servaddr;
-	memset(&servaddr, 0, sizeof(servaddr));
-	servaddr.sin_family = AF_INET;
 	char s[4096];
 	int a;
 	unsigned short dk(0);
@@ -116,74 +151,13 @@ int main()
 	}a=dk;
 	cout<<"请输入连接的ip：";
 	scanf("%s", s);
-	string name;
 	cout<<"请输入您的名字：";
 	cin>>name;
-	servaddr.sin_port = htons(a);           
-	servaddr.sin_addr.s_addr = inet_addr(s); 
-
-	if (connect(sock_cli, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
-	{
-		perror("connect error");
-		exit(-1);
-	}
-	string sed="#\b"+name+"#\b : joined\n";
-	send(sock_cli, sed.c_str(), sed.size(), 0);
-	while (1)
-	{
-		FD_ZERO(&rfds);
-		FD_SET(0, &rfds);
-		maxfd = 0;
-		FD_SET(sock_cli, &rfds);
-		if (maxfd < sock_cli)
-			maxfd = sock_cli;
-		tv.tv_sec = 5;
-		tv.tv_usec = 0;
-		retval = select(maxfd + 1, &rfds, NULL, NULL, &tv);
-		if (retval == -1)
-        {
-            printf("select error\n");
-            break;
-        }
-		else
-		{
-			if (FD_ISSET(sock_cli, &rfds))
-			{
-				char recvbuf[BUFFER_SIZE];
-				long len;
-				len = recv(sock_cli, recvbuf, sizeof(recvbuf), 0);
-				string str=recvbuf;
-				if(isapi(str))appi(str);
-				else cout<<str;
-				memset(recvbuf, 0, sizeof(recvbuf));
-			}
-			if (FD_ISSET(0, &rfds))
-			{
-				string sendbuf;
-				cin>>sendbuf;
-				if(sendbuf=="```cpp"){
-					cout<<"请输入文件内容（按ctrl+shift+v粘贴，ctrl+c停止输入）："<<endl;
-					system("cat > txt");
-					ifstream fin("txt");
-					for(int i=0;i<4096;++i)file[i].clear();
-					int sz;
-					for(sz=0;!fin.eof();++sz){
-						getline(fin,file[sz]);
-						file[sz]+="\n";
-					}
-					string sed=name+" send a file\n";
-					send(sock_cli, sed.c_str(), sed.size(), 0);
-					for(int i=0;i<sz;++i){
-						send(sock_cli, file[i].c_str(), file[i].size(), 0);
-					}
-
-				}
-				else{
-					string sed="#\b"+name+"#\b : "+sendbuf+"\n";
-					send(sock_cli, sed.c_str(), sed.size(), 0);
-				}
-			}
-		}
-	}
+	ofstream fout("connect.log");
+	fout<<a<<endl<<s<<endl<<name<<endl;
+	fout.close();
+	thread t1(ou);
+	t1.detach();
+	in();
 	return 0;
 }
